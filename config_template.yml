@@ -1,0 +1,11 @@
+loglevel:      ## The loglevel to use. Allowed values are: debug, info, warn, error, fatal, panic
+jenkins:
+  username:    ## The username to connect to Jenkins
+  apitoken:    ## The API key to connect to Jenkins
+  baseurl:     ## The full URL for Jenkins, with %s as the prameter for the job name
+pubnub:
+  keys:
+    publish:   ## The key to publish to PubNub
+    subscribe: ## The key to subscribe to PubNub
+  channels:    ## An array of channels to receive messages on
+    - xyz
