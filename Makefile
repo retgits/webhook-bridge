@@ -19,8 +19,9 @@ help: ## Displays the help for each target (this message)
 	@echo 
 
 #--- Linting targets ---
-fmt: ## Fmt runs the command 'gofmt -l -w' and prints the names of the files that are modified.
+fmt: ## Fmt runs the commands 'gofmt -l -w' and 'gofmt -s -w' and prints the names of the files that are modified.
 	env GO111MODULE=on go fmt ./...
+	env GO111MODULE=on gofmt -s -w .
 
 vet: ## Vet examines Go source code and reports suspicious constructs.
 	env GO111MODULE=on go vet ./...
