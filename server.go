@@ -1,3 +1,8 @@
+// Webhooks are an awesome way to get notified when something happens, like when a new Pull Request is created
+// in a GitHub repo or when a new commit is done. The problem is when your build server is running on a machine
+// that doesn't have a public IP address. Webhook Bridge is a small server that connects to PubNub and leverages
+// the awesome functionality they provide. Webhook Bridge uses the REST API to publish to PubNub and the Go SDK
+// to receive messages.
 package main
 
 import (
@@ -15,12 +20,16 @@ import (
 	"gopkg.in/go-playground/webhooks.v3/github"
 )
 
+// Jenkins represents the configuration of how to connect to a Jenkins server using username and
+// API token for authentication. The BaseURL follows the structure of `"http://myjenkinsserver:8080/job/%s/build"`
 type Jenkins struct {
 	Username string
 	APIToken string
 	BaseURL  string
 }
 
+// PubNub represents the configuration of how the app connects to PubNub and which channels and
+// listeners are associated with it.
 type PubNub struct {
 	Config       pubnub.Config
 	Channels     []string
@@ -28,18 +37,23 @@ type PubNub struct {
 	PubNubServer *pubnub.PubNub
 }
 
+// Server represents the server structure combining the PubNub and Jenkins structs into one. This struct
+// also has the methods to start and stop.
 type Server struct {
 	Jenkins Jenkins
 	PubNub  PubNub
 }
 
+// NewServer creates a new instance of the server using the configuration from the config file as input.
 func NewServer() *Server {
+	// Create a Jenkins struct
 	jenkins := Jenkins{
 		Username: viper.GetString("jenkins.username"),
 		APIToken: viper.GetString("jenkins.apitoken"),
 		BaseURL:  viper.GetString("jenkins.baseurl"),
 	}
 
+	// Create a PubNub struct
 	pubnub := PubNub{
 		Config: pubnub.Config{
 			Origin:                     "ps.pndsn.com",
@@ -62,27 +76,34 @@ func NewServer() *Server {
 		Channels: viper.GetStringSlice("pubnub.channels"),
 	}
 
+	// Create a Server struct
 	return &Server{
 		Jenkins: jenkins,
 		PubNub:  pubnub,
 	}
 }
 
+// Start makes sure that the server is started and connects to PubNub to be able to
+// receive messages
 func (s *Server) Start() {
+	// Create the PubNub config
 	log.Info().Msg("Starting server")
 	log.Info().Msg("Connecting to PubNub")
 	pn := pubnub.NewPubNub(&s.PubNub.Config)
 	s.PubNub.PubNubServer = pn
 
+	// Register listeners
 	log.Info().Msg("Registering Listeners")
 	listener := pubnub.NewListener()
 	pn.AddListener(listener)
 	listeners := make([]*pubnub.Listener, 1)
 	listeners[0] = listener
 
+	// Subscribe to channels
 	log.Info().Msg("Subscribing to Channels Listeners")
 	pn.Subscribe().Channels(s.PubNub.Channels).Execute()
 
+	// Start an indefinite loop to receive messages
 	for {
 		select {
 		case status := <-listener.Status:
@@ -95,6 +116,7 @@ func (s *Server) Start() {
 	}
 }
 
+// Stop unsubscribes from all channels and removes all listeners so it can gracefully shut down.
 func (s *Server) Stop() {
 	log.Info().Msg("Prepating to shutdown server")
 	log.Info().Msg("Removing all PubNub Listeners")
@@ -105,6 +127,7 @@ func (s *Server) Stop() {
 	s.PubNub.PubNubServer.UnsubscribeAll()
 }
 
+// handleStatusMessage handles all the status messages that are sent through PubNub
 func handleStatusMessage(status *pubnub.PNStatus) {
 	switch status.Category {
 	case pubnub.PNDisconnectedCategory:
@@ -118,6 +141,8 @@ func handleStatusMessage(status *pubnub.PNStatus) {
 	}
 }
 
+// handleMessage handles all regular messages that are coming through.
+// It distinguishes between the various events that are accepted (currently only 'push' and 'pull request').
 func handleMessage(message *pubnub.PNMessage, jenkins *Jenkins) {
 	jsonString, err := json.Marshal(message.Message)
 	if err != nil {
@@ -149,6 +174,7 @@ func handleMessage(message *pubnub.PNMessage, jenkins *Jenkins) {
 	}
 }
 
+// handleGitHubPush calls the Jenkins API for GitHub push events
 func handleGitHubPush(payload *github.PushPayload, jenkins *Jenkins) {
 	authString := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", jenkins.Username, jenkins.APIToken)))
 	url := fmt.Sprintf(jenkins.BaseURL, payload.Repository.Name)
@@ -177,6 +203,7 @@ func handleGitHubPush(payload *github.PushPayload, jenkins *Jenkins) {
 	log.Debug().Msgf("Received data from Jenkins:\n%+v\n%s", res, string(body))
 }
 
+// handleGitHubPR calls the Jenkins API for GitHub pull request events
 func handleGitHubPR(payload *github.PullRequestPayload, jenkins *Jenkins) {
 	log.Info().Msg("No actions defined for Pull Requests yet...")
 }

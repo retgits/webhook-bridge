@@ -11,8 +11,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var ()
-
 func main() {
 	// Get configuration parameters from config
 	viper.SetConfigName("config")
