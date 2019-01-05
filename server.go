@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
 	pubnub "github.com/pubnub/go"
@@ -103,6 +104,16 @@ func (s *Server) Start() {
 	log.Info().Msg("Subscribing to Channels Listeners")
 	pn.Subscribe().Channels(s.PubNub.Channels).Execute()
 
+	// Create .runningfile
+	if viper.GetBool("healthcheck") {
+		runfile, err := os.Create(".running")
+		if err != nil {
+			log.Error().Msgf("Error while creating .runningfile: %s\nthis means the container is unhealthy but the server will work...", err.Error())
+		}
+		log.Info().Msgf("Created .running file: %v", runfile)
+		runfile.Close()
+	}
+
 	// Start an indefinite loop to receive messages
 	for {
 		select {
@@ -125,6 +136,11 @@ func (s *Server) Stop() {
 	}
 	log.Info().Msg("Unsubscribing from all PubNub Channels")
 	s.PubNub.PubNubServer.UnsubscribeAll()
+
+	// Remove .runningfile
+	if viper.GetBool("healthcheck") {
+		os.Remove(".running")
+	}
 }
 
 // handleStatusMessage handles all the status messages that are sent through PubNub

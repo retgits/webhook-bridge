@@ -5,5 +5,5 @@ RUN apk --no-cache add ca-certificates \
 WORKDIR /home/app
 COPY ./webhook-bridge .
 USER app
-HEALTHCHECK --interval=2s CMD [ -e /tmp/.lock ] || exit 1
+HEALTHCHECK --interval=2s CMD [ -e ./.running ] || exit 1
 CMD ["./webhook-bridge"]

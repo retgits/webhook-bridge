@@ -1,4 +1,5 @@
 loglevel:      ## The loglevel to use. Allowed values are: debug, info, warn, error, fatal, panic
+healthcheck:   ## Create an empty .running file for healtchcheck purposes
 jenkins:
   username:    ## The username to connect to Jenkins
   apitoken:    ## The API key to connect to Jenkins
