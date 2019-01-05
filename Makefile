@@ -3,6 +3,8 @@
 # Last Updated: 2019-01-01
 
 #--- Variables ---
+## The name of the user for Docker
+DOCKERUSER=retgits
 ## Get the name of the project
 PROJECT=$(shell basename `pwd`)
 ## Set a default test directory
@@ -58,7 +60,11 @@ score: ## Get a score based on GoReportcard.
 #--- Build targets ---
 compile: ## Compiles and creates an executable in the 'out' folder.
 	mkdir -p out/
-	env GO111MODULE=on go build -race -o out/${PROJECT} main.go
+	env GO111MODULE=on GOOS=linux go build -o out/${PROJECT} *.go
+
+docker: compile ## Create a new docker container
+	cp Dockerfile ./out
+	cd ./out && docker build -t ${DOCKERUSER}/webhook-bridge .
 
 install: ## Compiles and installs the packages named by the import paths.
 	go -race install
