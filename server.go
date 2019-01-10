@@ -114,6 +114,8 @@ func (s *Server) Start() {
 		runfile.Close()
 	}
 
+	log.Info().Msg("Started server successfully and waiting for messages...")
+
 	// Start an indefinite loop to receive messages
 	for {
 		select {
