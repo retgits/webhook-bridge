@@ -44,6 +44,18 @@ pubnub:
     - xyz
 ```
 
+Additionally, thanks to [viper](https://github.com/spf13/viper), you can also provide the configuration variables through env vars
+
+```bash
+export LOGLEVEL=debug
+export JENKINS_USERNAME=<username>
+export JENKINS_APITOKEN=<apitoken>
+export JENKINS_BASEURL=<url>
+export PUBNUB_KEYS_PUBLISH=<key>
+export PUBNUB_KEYS_SUBSCRIBE=<key>
+export PUBNUB_CHANNELS=<chan1>,<chan2>
+```
+
 ### Jenkins
 
 To get the _apitoken_ in Jenkins

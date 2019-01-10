@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -12,6 +13,9 @@ import (
 )
 
 func main() {
+	// Set a default for loglevel
+	viper.SetDefault("loglevel", "debug")
+
 	// Get configuration parameters from config
 	viper.SetConfigName("config")
 	viper.AddConfigPath("/etc/webhookbridge/")
@@ -19,8 +23,13 @@ func main() {
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("fatal error reading config file: %s", err))
+		fmt.Println(fmt.Errorf("fatal error reading config file: %s", err))
 	}
+
+	// Make sure that configuration can be resolved from Environment Variables too
+	viper.AutomaticEnv()
+	replacer := strings.NewReplacer(".", "_")
+	viper.SetEnvKeyReplacer(replacer)
 
 	// Set the default level
 	loglevel, err := zerolog.ParseLevel(viper.GetString("loglevel"))

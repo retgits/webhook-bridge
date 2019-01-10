@@ -54,6 +54,11 @@ func NewServer() *Server {
 		BaseURL:  viper.GetString("jenkins.baseurl"),
 	}
 
+	channels := viper.GetStringSlice("pubnub.channels")
+	if len(channels) == 1 && strings.Contains(channels[0], ",") {
+		channels = strings.Split(channels[0], ",")
+	}
+
 	// Create a PubNub struct
 	pubnub := PubNub{
 		Config: pubnub.Config{
@@ -74,7 +79,7 @@ func NewServer() *Server {
 			PublishKey:                 viper.GetString("pubnub.keys.publish"),
 			SubscribeKey:               viper.GetString("pubnub.keys.subscribe"),
 		},
-		Channels: viper.GetStringSlice("pubnub.channels"),
+		Channels: channels,
 	}
 
 	// Create a Server struct
