@@ -6,7 +6,7 @@
 ## The name of the user for Docker
 DOCKERUSER=retgits
 ## Get the name of the project
-PROJECT=$(shell basename `pwd`)
+PROJECT=webhook-bridge
 ## Set a default test directory
 TESTDIR=$(CURDIR)/test
 ## Create a list of all packages in this repository
