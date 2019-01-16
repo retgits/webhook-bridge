@@ -60,7 +60,7 @@ score: ## Get a score based on GoReportcard.
 #--- Build targets ---
 compile: ## Compiles and creates an executable in the 'out' folder.
 	mkdir -p out/
-	env GO111MODULE=on GOOS=linux go build -o out/${PROJECT} *.go
+	env GO111MODULE=on GOOS=linux CGO_ENABLED=0 go build -v -a -installsuffix cgo -o out/${PROJECT} *.go
 
 docker: compile ## Create a new docker container
 	cp Dockerfile ./out
