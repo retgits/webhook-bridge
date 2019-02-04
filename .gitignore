@@ -2,12 +2,11 @@
 # Binaries
 out/*
 
+# Scripts
+start-*.sh
+
 # Tests
 test/
-
-# Environment
-.env
-config.yml
 
 ## Golang: https://github.com/github/gitignore/blob/master/Go.gitignore
 # Binaries for programs and plugins
