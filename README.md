@@ -1,5 +1,7 @@
 # Webhook Bridge
 
+_This repository has been archived and the code is no longer maintained. Feel free to fork and use it if you want to._
+
 ![webhook-bridge](./icons/webhook-bridge-256.png)
 
 Webhooks are an awesome way to get notified when something happens, like when a new Pull Request is created in a GitHub repo or when a new commit is done. The problem is when your build server is running on a machine that doesn't have a public IP address.
